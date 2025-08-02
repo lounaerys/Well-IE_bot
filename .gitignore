@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.env
+user_data/user_data.db
+.DS_Store
+venv/
+__pycache__/
+*.pyc
+.env
+user_data/user_data.db
+.DS_Store
