@@ -2,12 +2,19 @@ from datetime import datetime
 from telegram.ext import ConversationHandler, MessageHandler, Filters
 from user_data.user_data_storage import get_last_user_entry
 from keyboards.main_kb import main_keyboard
+from handlers.parameters_states import *
+from handlers.parameters_add_handler import (
+    add_params_start, add_weight, add_hips, add_thigh,
+    add_waist, add_chest, add_biceps, MAIN_MENU_BUTTONS
+)
 
 
 def text_message_handler(update, context):
     text = update.message.text
     if text == '📋 Текущие параметры':
         return show_current_params(update, context)
+    if text == '➕ Добавить параметры':
+        return add_params_start(update, context)
     update.message.reply_text(
         'Выберите действие из меню.',
         reply_markup=main_keyboard()
@@ -48,5 +55,18 @@ def show_current_params(update, context):
 
 
 def register_parameters_handler(dp):
-    handler = MessageHandler(Filters.text, text_message_handler)
-    dp.add_handler(handler)
+    conv = ConversationHandler(
+        entry_points=[
+            MessageHandler(Filters.text, text_message_handler),
+        ],
+        states={
+            WEIGHT_ADD: [MessageHandler(Filters.text & ~Filters.command, add_weight)],
+            HIPS_ADD: [MessageHandler(Filters.text & ~Filters.command, add_hips)],
+            THIGH_ADD: [MessageHandler(Filters.text & ~Filters.command, add_thigh)],
+            WAIST_ADD: [MessageHandler(Filters.text & ~Filters.command, add_waist)],
+            CHEST_ADD: [MessageHandler(Filters.text & ~Filters.command, add_chest)],
+            BICEPS_ADD: [MessageHandler(Filters.text & ~Filters.command, add_biceps)],
+        },
+        fallbacks=[MessageHandler(Filters.command, lambda u, c: ConversationHandler.END)]
+    )
+    dp.add_handler(conv)
