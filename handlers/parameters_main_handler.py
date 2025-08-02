@@ -1,11 +1,22 @@
 from datetime import datetime
-from telegram.ext import ConversationHandler, MessageHandler, Filters
+from telegram.ext import (
+    ConversationHandler,
+    MessageHandler,
+    Filters,
+    CallbackQueryHandler
+)
 from user_data.user_data_storage import get_last_user_entry
 from keyboards.main_kb import main_keyboard
 from handlers.parameters_states import *
 from handlers.parameters_add_handler import (
     add_params_start, add_weight, add_hips, add_thigh,
     add_waist, add_chest, add_biceps, MAIN_MENU_BUTTONS
+)
+from handlers.parameters_edit_handler import (
+    edit_parameters_menu, edit_parameter,
+    handle_weight_edit, handle_hips_edit,
+    handle_thigh_edit, handle_waist_edit,
+    handle_chest_edit, handle_biceps_edit
 )
 
 
@@ -15,6 +26,8 @@ def text_message_handler(update, context):
         return show_current_params(update, context)
     if text == '➕ Добавить параметры':
         return add_params_start(update, context)
+    if text == '✏️ Редактировать параметры':
+        return edit_parameters_menu(update, context)
     update.message.reply_text(
         'Выберите действие из меню.',
         reply_markup=main_keyboard()
@@ -58,6 +71,7 @@ def register_parameters_handler(dp):
     conv = ConversationHandler(
         entry_points=[
             MessageHandler(Filters.text, text_message_handler),
+            CallbackQueryHandler(edit_parameter, pattern='^edit_'),
         ],
         states={
             WEIGHT_ADD: [MessageHandler(Filters.text & ~Filters.command, add_weight)],
@@ -66,6 +80,17 @@ def register_parameters_handler(dp):
             WAIST_ADD: [MessageHandler(Filters.text & ~Filters.command, add_waist)],
             CHEST_ADD: [MessageHandler(Filters.text & ~Filters.command, add_chest)],
             BICEPS_ADD: [MessageHandler(Filters.text & ~Filters.command, add_biceps)],
+
+            EDIT_MENU: [
+                CallbackQueryHandler(edit_parameter, pattern='^edit_'),
+                MessageHandler(Filters.text, text_message_handler),
+            ],
+            WEIGHT_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_weight_edit)],
+            HIPS_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_hips_edit)],
+            THIGH_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_thigh_edit)],
+            WAIST_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_waist_edit)],
+            CHEST_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_chest_edit)],
+            BICEPS_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_biceps_edit)],
         },
         fallbacks=[MessageHandler(Filters.command, lambda u, c: ConversationHandler.END)]
     )
