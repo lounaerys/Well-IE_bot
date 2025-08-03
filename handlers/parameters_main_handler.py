@@ -24,6 +24,7 @@ from handlers.parameters_delete_handler import (
 )
 from handlers.parameters_states import DELETE_CONFIRM
 
+
 def text_message_handler(update, context):
     clear_all_inlines(context)
     text = update.message.text
@@ -50,6 +51,7 @@ def text_message_handler(update, context):
     update.message.reply_text('Выберите действие из меню.', reply_markup=main_keyboard())
     return ConversationHandler.END
 
+
 def show_current_params(update, context):
     clear_all_inlines(context)
     user_id = update.message.from_user.id
@@ -67,17 +69,18 @@ def show_current_params(update, context):
         return ts
 
     text = (
-        f'Текущие параметры:\n'
-        f'Вес: {data.get("weight", "-")} кг\n'
-        f'Объем ягодиц: {data.get("hips", "-")} см\n'
-        f'Объем бедра: {data.get("thigh", "-")} см\n'
-        f'Объем талии: {data.get("waist", "-")} см\n'
-        f'Объем груди: {data.get("chest", "-")} см\n'
-        f'Объем бицепса: {data.get("biceps", "-")} см\n'
+        '<b>Текущие параметры:</b>\n\n'
+        f'⚖️ Вес: {data.get("weight", "-")} кг\n\n'
+        f'🍑 Обхват ягодиц: {data.get("hips", "-")} см\n\n'
+        f'🦵 Обхват бедра: {data.get("thigh", "-")} см\n\n'
+        f'🔄 Обхват талии: {data.get("waist", "-")} см\n\n'
+        f'🎽 Обхват груди: {data.get("chest", "-")} см\n\n'
+        f'💪 Обхват бицепса: {data.get("biceps", "-")} см\n\n'
         f'Последнее обновление: {fmt_ts(data.get("timestamp", ""))}'
     )
-    update.message.reply_text(text, reply_markup=main_keyboard())
+    update.message.reply_text(text, reply_markup=main_keyboard(), parse_mode='HTML')
     return ConversationHandler.END
+
 
 def register_parameters_handler(dp):
     conv = ConversationHandler(
@@ -90,10 +93,10 @@ def register_parameters_handler(dp):
         ],
         states={
             WEIGHT_ADD: [MessageHandler(Filters.text & ~Filters.command, add_weight)],
-            HIPS_ADD:   [MessageHandler(Filters.text & ~Filters.command, add_hips)],
-            THIGH_ADD:  [MessageHandler(Filters.text & ~Filters.command, add_thigh)],
-            WAIST_ADD:  [MessageHandler(Filters.text & ~Filters.command, add_waist)],
-            CHEST_ADD:  [MessageHandler(Filters.text & ~Filters.command, add_chest)],
+            HIPS_ADD: [MessageHandler(Filters.text & ~Filters.command, add_hips)],
+            THIGH_ADD: [MessageHandler(Filters.text & ~Filters.command, add_thigh)],
+            WAIST_ADD: [MessageHandler(Filters.text & ~Filters.command, add_waist)],
+            CHEST_ADD: [MessageHandler(Filters.text & ~Filters.command, add_chest)],
             BICEPS_ADD: [MessageHandler(Filters.text & ~Filters.command, add_biceps)],
 
             EDIT_MENU: [
@@ -101,10 +104,10 @@ def register_parameters_handler(dp):
                 MessageHandler(Filters.text, text_message_handler),
             ],
             WEIGHT_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_weight_edit)],
-            HIPS_EDIT:   [MessageHandler(Filters.text & ~Filters.command, handle_hips_edit)],
-            THIGH_EDIT:  [MessageHandler(Filters.text & ~Filters.command, handle_thigh_edit)],
-            WAIST_EDIT:  [MessageHandler(Filters.text & ~Filters.command, handle_waist_edit)],
-            CHEST_EDIT:  [MessageHandler(Filters.text & ~Filters.command, handle_chest_edit)],
+            HIPS_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_hips_edit)],
+            THIGH_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_thigh_edit)],
+            WAIST_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_waist_edit)],
+            CHEST_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_chest_edit)],
             BICEPS_EDIT: [MessageHandler(Filters.text & ~Filters.command, handle_biceps_edit)],
 
             PROGRESS_MENU: [

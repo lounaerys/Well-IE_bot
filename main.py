@@ -8,6 +8,7 @@ from handlers.start_handler import register_start_handler
 from handlers.parameters_main_handler import register_parameters_handler
 from user_data.user_data_storage import init_db
 
+
 load_dotenv()
 TOKEN = os.getenv('BOT_TOKEN')
 

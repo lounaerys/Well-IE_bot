@@ -1,5 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+
 def progress_keyboard():
     keyboard = [
         [

@@ -5,6 +5,7 @@ from keyboards.main_kb import main_keyboard
 from handlers.parameters_states import DELETE_CONFIRM
 from handlers.inline_utils import clear_all_inlines, register_inline
 
+
 def ask_delete_data(update, context):
     clear_all_inlines(context)
     user_id = update.effective_user.id if update.callback_query else update.message.from_user.id
@@ -20,7 +21,8 @@ def ask_delete_data(update, context):
         return ConversationHandler.END
     kb = delete_confirm_keyboard()
     if update.callback_query:
-        q = update.callback_query; q.answer()
+        q = update.callback_query
+        q.answer()
         q.edit_message_text(
             'Вы уверены, что хотите удалить все свои данные? Это действие необратимо.',
             reply_markup=kb
@@ -34,25 +36,29 @@ def ask_delete_data(update, context):
         register_inline(context, msg.chat.id, msg.message_id)
     return DELETE_CONFIRM
 
+
 def delete_data_confirm_inline(update, context):
     clear_all_inlines(context)
-    q = update.callback_query; q.answer()
+    q = update.callback_query
+    q.answer()
     if q.data == 'delete_confirm_yes':
         delete_all_user_data(q.from_user.id)
         q.edit_message_text('Все ваши данные удалены!')
     else:
         q.edit_message_text('Удаление отменено, данные не удалены.')
-    q.message.reply_text('Главное меню:', reply_markup=main_keyboard())
     return ConversationHandler.END
+
 
 def cancel_delete_inline(update, context):
     clear_all_inlines(context)
-    q = update.callback_query; q.answer()
+    q = update.callback_query
+    q.answer()
     q.message.reply_text(
         'Операция удаления отменена, данные не удалены.',
         reply_markup=main_keyboard()
     )
     return ConversationHandler.END
+
 
 def cancel_delete_by_message(update, context):
     clear_all_inlines(context)

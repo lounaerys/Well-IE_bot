@@ -11,6 +11,7 @@ def clear_all_inlines(context):
         except:
             pass
 
+
 def register_inline(context, chat_id, message_id):
     lst = context.user_data.get('inline_msgs')
     if lst is None:

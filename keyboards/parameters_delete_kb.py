@@ -1,5 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
+
 def delete_confirm_keyboard():
     keyboard = [
         [
