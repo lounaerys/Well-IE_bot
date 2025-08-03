@@ -145,3 +145,9 @@ def get_user_progress_for_periods(user_id, param):
         'нет данных для сравнения с началом'
     )
     return res
+
+def delete_all_user_data(user_id):
+    conn = sqlite3.connect(DB_PATH); c = conn.cursor()
+    c.execute('DELETE FROM users WHERE user_id = ?', (user_id,))
+    c.execute('DELETE FROM user_log WHERE user_id = ?', (user_id,))
+    conn.commit(); conn.close()

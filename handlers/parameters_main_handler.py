@@ -18,6 +18,11 @@ from handlers.progress_handler import (
     overall_progress, progress_menu_callback
 )
 from handlers.inline_utils import clear_all_inlines
+from handlers.parameters_delete_handler import (
+    ask_delete_data, delete_data_confirm_inline,
+    cancel_delete_inline, cancel_delete_by_message
+)
+from handlers.parameters_states import DELETE_CONFIRM
 
 def text_message_handler(update, context):
     clear_all_inlines(context)
@@ -27,10 +32,22 @@ def text_message_handler(update, context):
     if text == '➕ Добавить параметры':
         return add_params_start(update, context)
     if text == '✏️ Редактировать параметры':
+        user_id = update.message.from_user.id
+        data = get_last_user_entry(user_id)
+        if not data:
+            update.message.reply_text('Параметры пока не заданы.', reply_markup=main_keyboard())
+            return ConversationHandler.END
         return edit_parameters_menu(update, context)
     if text == '📈 Мой прогресс':
+        user_id = update.message.from_user.id
+        data = get_last_user_entry(user_id)
+        if not data:
+            update.message.reply_text('Отсутствуют данные для просмотра прогресса.', reply_markup=main_keyboard())
+            return ConversationHandler.END
         return show_progress_menu(update, context)
-    update.message.reply_text("Выберите действие из меню.", reply_markup=main_keyboard())
+    if text == '🗑️ Удалить все данные':
+        return ask_delete_data(update, context)
+    update.message.reply_text('Выберите действие из меню.', reply_markup=main_keyboard())
     return ConversationHandler.END
 
 def show_current_params(update, context):
@@ -38,26 +55,26 @@ def show_current_params(update, context):
     user_id = update.message.from_user.id
     data = get_last_user_entry(user_id)
     if not data:
-        update.message.reply_text("Параметры пока не заданы.", reply_markup=main_keyboard())
+        update.message.reply_text('Параметры пока не заданы.', reply_markup=main_keyboard())
         return ConversationHandler.END
 
     def fmt_ts(ts):
-        for fmt in ("%Y-%m-%dT%H:%M:%S","%Y-%m-%d %H:%M:%S"):
+        for fmt in ('%Y-%m-%dT%H:%M:%S', '%Y-%m-%d %H:%M:%S'):
             try:
-                return datetime.strptime(ts, fmt).strftime("%d.%m.%Y в %H:%M")
+                return datetime.strptime(ts, fmt).strftime('%d.%m.%Y в %H:%M')
             except:
                 pass
         return ts
 
     text = (
-        f"Текущие параметры:\n"
-        f"Вес: {data.get('weight', '-') } кг\n"
-        f"Объем ягодиц: {data.get('hips', '-') } см\n"
-        f"Объем бедра: {data.get('thigh', '-') } см\n"
-        f"Объем талии: {data.get('waist', '-') } см\n"
-        f"Объем груди: {data.get('chest', '-') } см\n"
-        f"Объем бицепса: {data.get('biceps', '-') } см\n"
-        f"Последнее обновление: {fmt_ts(data.get('timestamp',''))}"
+        f'Текущие параметры:\n'
+        f'Вес: {data.get("weight", "-")} кг\n'
+        f'Объем ягодиц: {data.get("hips", "-")} см\n'
+        f'Объем бедра: {data.get("thigh", "-")} см\n'
+        f'Объем талии: {data.get("waist", "-")} см\n'
+        f'Объем груди: {data.get("chest", "-")} см\n'
+        f'Объем бицепса: {data.get("biceps", "-")} см\n'
+        f'Последнее обновление: {fmt_ts(data.get("timestamp", ""))}'
     )
     update.message.reply_text(text, reply_markup=main_keyboard())
     return ConversationHandler.END
@@ -110,6 +127,12 @@ def register_parameters_handler(dp):
                 CallbackQueryHandler(progress_for_param,
                                      pattern='^progress_(weight|hips|thigh|waist|chest|biceps)$'),
                 MessageHandler(Filters.text, text_message_handler),
+            ],
+
+            DELETE_CONFIRM: [
+                CallbackQueryHandler(delete_data_confirm_inline, pattern='^delete_confirm_(yes|no)$'),
+                CallbackQueryHandler(cancel_delete_inline),
+                MessageHandler(Filters.text, cancel_delete_by_message),
             ],
         },
         fallbacks=[MessageHandler(Filters.command, lambda u, c: ConversationHandler.END)]
