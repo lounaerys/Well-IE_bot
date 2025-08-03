@@ -6,6 +6,7 @@ from user_data.user_data_storage import (
 )
 from keyboards.progress_kb import progress_keyboard
 from handlers.parameters_states import PROGRESS_MENU, PROGRESS_PARAM, PROGRESS_OVERALL
+from handlers.inline_utils import clear_all_inlines, register_inline
 
 UNITS = {
     'weight': 'кг','hips':'см','thigh':'см',
@@ -21,14 +22,18 @@ def pretty_param_name(p):
     return f'«{names[p]}»'
 
 def show_progress_menu(update, context):
+    clear_all_inlines(context)
     if update.callback_query:
         q = update.callback_query; q.answer()
         q.edit_message_text('Выберите параметр:', reply_markup=progress_keyboard())
+        register_inline(context, q.message.chat.id, q.message.message_id)
     else:
         msg = update.message.reply_text('Выберите параметр:', reply_markup=progress_keyboard())
+        register_inline(context, msg.chat.id, msg.message_id)
     return PROGRESS_MENU
 
 def progress_for_param(update, context):
+    clear_all_inlines(context)
     q = update.callback_query; q.answer()
     param   = q.data.replace('progress_','')
     user_id = q.from_user.id
@@ -51,9 +56,11 @@ def progress_for_param(update, context):
 
     kb = [[InlineKeyboardButton('🔙 Назад', callback_data='progress_menu')]]
     q.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode='HTML')
+    register_inline(context, q.message.chat.id, q.message.message_id)
     return PROGRESS_PARAM
 
 def overall_progress(update, context):
+    clear_all_inlines(context)
     q = update.callback_query; q.answer()
 
     user_id = q.from_user.id
@@ -65,6 +72,7 @@ def overall_progress(update, context):
 
     kb = [[InlineKeyboardButton('🔙 Назад', callback_data='progress_menu')]]
     q.edit_message_text(text, reply_markup=InlineKeyboardMarkup(kb), parse_mode='HTML')
+    register_inline(context, q.message.chat.id, q.message.message_id)
     return PROGRESS_OVERALL
 
 def progress_menu_callback(update, context):

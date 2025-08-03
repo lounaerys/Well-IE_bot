@@ -17,8 +17,10 @@ from handlers.progress_handler import (
     show_progress_menu, progress_for_param,
     overall_progress, progress_menu_callback
 )
+from handlers.inline_utils import clear_all_inlines
 
 def text_message_handler(update, context):
+    clear_all_inlines(context)
     text = update.message.text
     if text == '📋 Текущие параметры':
         return show_current_params(update, context)
@@ -32,6 +34,7 @@ def text_message_handler(update, context):
     return ConversationHandler.END
 
 def show_current_params(update, context):
+    clear_all_inlines(context)
     user_id = update.message.from_user.id
     data = get_last_user_entry(user_id)
     if not data:
